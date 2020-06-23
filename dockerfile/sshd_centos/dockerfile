@@ -1,0 +1,21 @@
+#设置镜像继承
+FROM centos:latest
+
+#提供一些作者的信息
+MAINTAINER eason2020
+
+#安装passwd,openssl,openssh-server
+RUN yum install passwd openssl openssh-server glibc-common  -y
+
+RUN ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''
+RUN ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
+
+# 指定root密码
+RUN /bin/echo 'root:123456'|chpasswd
+RUN /bin/echo -e "LANG=\"en_US.UTF-8\"" > /etc/default/local
+RUN /bin/sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
+
+
+#设置启动命令
+CMD /usr/sbin/sshd -D
